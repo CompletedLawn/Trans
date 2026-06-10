@@ -1,3 +1,14 @@
+import sys
+import subprocess
+
+# Auto-install missing dependencies at runtime (useful when deploying only app.py on share.streamlit)
+required_packages = ["folium", "streamlit-folium", "matplotlib", "pandas", "numpy"]
+for package in required_packages:
+    try:
+        __import__(package.replace("-", "_"))
+    except ImportError:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
 import streamlit as st
 import pandas as pd
 import numpy as np
