@@ -524,13 +524,13 @@ if not visible_stops.empty:
         epsilon = 0.25
         score_new = np.sum(new_stop_weights[np.newaxis, :] / (dist_n + epsilon)**dist_decay, axis=1)[0]
         
-        # Normalize comparison
-        # Find raw original score at desert index
-        raw_original_scores = np.sum(visible_stops["weight"].values[np.newaxis, :] / (dist + epsilon)**dist_decay, axis=1)
-        raw_original_min = np.min(raw_original_scores)
-        raw_original_max = np.max(raw_original_scores)
-        
-        raw_score_desert = raw_original_scores[min_idx[0] * grid_size + min_idx[1]]
+        # Calculate raw original score at the desert point (using original stops only)
+        orig_stop_coords = visible_stops[["stop_lat", "stop_lon"]].values
+        orig_stop_weights = visible_stops["weight"].values
+        dlat_o = desert_coord[:, np.newaxis, 0] - orig_stop_coords[np.newaxis, :, 0]
+        dlon_o = (desert_coord[:, np.newaxis, 1] - orig_stop_coords[np.newaxis, :, 1]) * cos_lat
+        dist_o = np.sqrt(dlat_o**2 + dlon_o**2) * 111.0
+        raw_score_desert = np.sum(orig_stop_weights[np.newaxis, :] / (dist_o + epsilon)**dist_decay, axis=1)[0]
         
         # Compute percentage improvement in raw accessibility index
         if raw_score_desert > 0:
